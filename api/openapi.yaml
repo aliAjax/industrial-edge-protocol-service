@@ -1,0 +1,19 @@
+openapi: 3.0.3
+info:
+  title: Industrial Edge Protocol API
+  version: 1.0.0
+paths:
+  /healthz:
+    get:
+      responses: {"200": {description: healthy}}
+  /api/v1/sites:
+    get: {responses: {"200": {description: list sites}}}
+    post: {responses: {"201": {description: site created}, "400": {description: invalid request}}}
+  /api/v1/points:
+    get: {responses: {"200": {description: list points}}}
+    post: {responses: {"201": {description: point created}, "400": {description: invalid request}}}
+  /api/v1/telemetry/raw:
+    get:
+      parameters:
+        - {name: point_id, in: query, required: true, schema: {type: string}}
+      responses: {"200": {description: readings}}

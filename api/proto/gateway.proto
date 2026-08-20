@@ -1,0 +1,8 @@
+syntax = "proto3";
+package edge.gateway.v1;
+option go_package = "industrial-edge-protocol/api/proto/gatewayv1";
+message HeartbeatRequest { string gateway_id = 1; string version = 2; double cpu_ratio = 3; uint64 disk_free_bytes = 4; }
+message HeartbeatResponse { bool accepted = 1; string lease_token = 2; }
+message UploadSegmentRequest { string gateway_id = 1; string segment_id = 2; uint64 sequence = 3; bytes payload = 4; string digest = 5; }
+message UploadSegmentResponse { bool accepted = 1; uint64 next_sequence = 2; }
+service Gateway { rpc Heartbeat(HeartbeatRequest) returns (HeartbeatResponse); rpc UploadSegment(UploadSegmentRequest) returns (UploadSegmentResponse); }

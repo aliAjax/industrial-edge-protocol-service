@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: industrial-edge-api}
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: industrial-edge-api}}
+  template:
+    metadata: {labels: {app: industrial-edge-api}}
+    spec:
+      containers:
+        - name: api
+          image: industrial-edge-protocol:latest
+          ports: [{containerPort: 8099}]
+          readinessProbe: {httpGet: {path: /readyz, port: 8099}}
+          livenessProbe: {httpGet: {path: /healthz, port: 8099}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: industrial-edge-api}
+spec:
+  selector: {app: industrial-edge-api}
+  ports: [{port: 8099, targetPort: 8099}]

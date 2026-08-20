@@ -1,0 +1,9 @@
+services:
+  edge-api:
+    build: .
+    ports: ["8099:8099"]
+    environment:
+      EDGE_DATA_DIR: /var/lib/edge
+    volumes: ["edge-data:/var/lib/edge"]
+volumes:
+  edge-data: {}

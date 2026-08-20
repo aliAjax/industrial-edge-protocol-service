@@ -1,0 +1,5 @@
+http_addr: ":8099"
+data_dir: "./data"
+worker_interval: 5s
+max_buffer_bytes: 67108864
+command_timeout: 5s
