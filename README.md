@@ -6,7 +6,6 @@
 
 ```bash
 go run ./cmd/edge-api
-go run ./cmd/edge-worker
 ```
 
 默认 API 地址为 `:8099`，可通过 `EDGE_HTTP_ADDR`、`EDGE_DATA_DIR`、`EDGE_MAX_BUFFER_BYTES`、`EDGE_WORKER_INTERVAL` 配置。服务提供 `/healthz`、`/readyz`、`/api/v1/sites`、`devices`、`gateways`、`points`、`acquisition-plans`、`rules`、`alarms`、`commands` 和 telemetry 查询。

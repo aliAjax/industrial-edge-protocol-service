@@ -25,9 +25,10 @@ func (s *Store) Append(values []domain.Reading) {
 }
 func (s *Store) Query(id domain.ID, from, to time.Time, limit int) []domain.Reading {
 	s.mu.RLock()
-	defer s.mu.RUnlock()
-	out := []domain.Reading{}
-	for _, v := range s.byPoint[id] {
+	rows := s.byPoint[id]
+	s.mu.RUnlock()
+	out := rows[:0]
+	for _, v := range rows {
 		if !v.ObservedAt.Before(from) && v.ObservedAt.Before(to) {
 			out = append(out, v)
 			if limit > 0 && len(out) >= limit {

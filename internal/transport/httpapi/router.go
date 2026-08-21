@@ -193,6 +193,9 @@ func (s *Server) commands(w http.ResponseWriter, r *http.Request) {
 	}
 	writeError(w, 405, "method not allowed")
 }
+
+var telemetryResponseScratch []domain.Reading
+
 func (s *Server) telemetryRaw(w http.ResponseWriter, r *http.Request) {
 	id := domain.ID(r.URL.Query().Get("point_id"))
 	if id == "" {
@@ -202,7 +205,9 @@ func (s *Server) telemetryRaw(w http.ResponseWriter, r *http.Request) {
 	from := parseTime(r.URL.Query().Get("from"), time.Now().Add(-time.Hour))
 	to := parseTime(r.URL.Query().Get("to"), time.Now().Add(time.Second))
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-	write(w, 200, s.app.Telemetry.Query(id, from, to, limit))
+	rows := s.app.Telemetry.Query(id, from, to, limit)
+	telemetryResponseScratch = append(telemetryResponseScratch[:0], rows...)
+	write(w, 200, telemetryResponseScratch)
 }
 func (s *Server) telemetryAggregate(w http.ResponseWriter, r *http.Request) {
 	id := domain.ID(r.URL.Query().Get("point_id"))
