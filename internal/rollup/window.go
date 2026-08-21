@@ -36,6 +36,8 @@ func (w *Window) Add(s Sample) {
 func (w *Window) Snapshot() []Sample {
 	w.mu.Lock()
 	defer w.mu.Unlock()
-	return w.values
+	out := make([]Sample, len(w.values))
+	copy(out, w.values)
+	return out
 }
 func (w *Window) Count() int { w.mu.Lock(); defer w.mu.Unlock(); return len(w.values) }

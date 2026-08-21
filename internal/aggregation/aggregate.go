@@ -19,7 +19,8 @@ type Bucket struct {
 }
 
 func Build(values []domain.Reading, start, end time.Time, step time.Duration) []Bucket {
-	sort.SliceStable(values, func(i, j int) bool { return values[i].ObservedAt.Before(values[j].ObservedAt) })
+	sorted := append([]domain.Reading(nil), values...)
+	sort.SliceStable(sorted, func(i, j int) bool { return sorted[i].ObservedAt.Before(sorted[j].ObservedAt) })
 	if step <= 0 {
 		step = time.Minute
 	}
@@ -31,7 +32,7 @@ func Build(values []domain.Reading, start, end time.Time, step time.Duration) []
 	for i := range out {
 		out[i] = Bucket{Start: start.Add(time.Duration(i) * step), End: start.Add(time.Duration(i+1) * step), Min: math.Inf(1), Max: math.Inf(-1)}
 	}
-	for _, v := range values {
+	for _, v := range sorted {
 		if v.ObservedAt.Before(start) || !v.ObservedAt.Before(end) {
 			continue
 		}

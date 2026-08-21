@@ -13,7 +13,8 @@ func (r Resampler) Apply(values []domain.Reading) []domain.Reading {
 		return append([]domain.Reading(nil), values...)
 	}
 	out := []domain.Reading{}
-	sort.SliceStable(values, func(i, j int) bool { return values[i].ObservedAt.Before(values[j].ObservedAt) })
+	sorted := append([]domain.Reading(nil), values...)
+	sort.SliceStable(sorted, func(i, j int) bool { return sorted[i].ObservedAt.Before(sorted[j].ObservedAt) })
 	var bucket time.Time
 	var sum float64
 	var count int
@@ -27,7 +28,7 @@ func (r Resampler) Apply(values []domain.Reading) []domain.Reading {
 			count = 0
 		}
 	}
-	for _, v := range values {
+	for _, v := range sorted {
 		current := v.ObservedAt.Truncate(r.Interval)
 		if bucket.IsZero() {
 			bucket = current
