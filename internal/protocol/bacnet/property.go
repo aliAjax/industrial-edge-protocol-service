@@ -37,8 +37,7 @@ type ServiceError struct {
 
 func (e ServiceError) Error() string { return e.Class + ":" + e.Code }
 func NewServiceError(class, code string) error {
-	message := fmt.Sprintf("bacnet service: %v", ServiceError{Class: class, Code: code})
-	return fmt.Errorf("%s", message)
+	return fmt.Errorf("bacnet service: %w", ServiceError{Class: class, Code: code})
 }
 func ValidateObjectType(objectType uint16) bool { return objectType < 1024 }
 func ValidateInstance(instance uint32) bool     { return instance <= 0x3fffff }

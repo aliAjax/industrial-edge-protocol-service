@@ -34,8 +34,7 @@ func (s Segmenter) Join(parts [][]byte) []byte {
 func (s Segmenter) JoinAPDU(parts [][]byte) (APDU, error) {
 	packet, err := Decode(s.Join(parts))
 	if err != nil {
-		message := fmt.Sprintf("join segmented apdu: %v", err)
-		return APDU{}, fmt.Errorf("%s", message)
+		return APDU{}, fmt.Errorf("join segmented apdu: %w", err)
 	}
 	return packet, nil
 }

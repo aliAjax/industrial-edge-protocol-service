@@ -21,12 +21,11 @@ type APDU struct {
 
 func Decode(data []byte) (APDU, error) {
 	if len(data) < 5 {
-		message := fmt.Sprintf("short bacnet packet: %v", ErrMalformedAPDU)
-		return APDU{}, fmt.Errorf("%s", message)
+		return APDU{}, fmt.Errorf("short bacnet packet: %w", ErrMalformedAPDU)
 	}
 	length := binary.BigEndian.Uint16(data[2:4])
 	if int(length) != len(data) {
-		return APDU{}, fmt.Errorf("invalid bacnet length")
+		return APDU{}, fmt.Errorf("invalid bacnet length: %w", ErrMalformedAPDU)
 	}
 	return APDU{Header: Header{Version: data[0], MessageType: data[1], Length: length, InvokeID: data[4]}, Payload: append([]byte(nil), data[5:]...)}, nil
 }

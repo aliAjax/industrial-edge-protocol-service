@@ -18,8 +18,7 @@ func (p *PriorityArray) Set(priority int, value any) bool {
 }
 func (p *PriorityArray) SetChecked(priority int, value any) error {
 	if !p.Set(priority, value) {
-		message := fmt.Sprintf("priority %d: %v", priority, ErrInvalidPriority)
-		return fmt.Errorf("%s", message)
+		return fmt.Errorf("priority %d: %w", priority, ErrInvalidPriority)
 	}
 	return nil
 }
