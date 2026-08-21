@@ -46,8 +46,5 @@ func ParseRequest(f Frame) (Request, error) {
 		return Request{}, ErrFrame
 	}
 	r := Request{Unit: f.Unit, Function: f.Function, Address: uint16(f.Payload[0])<<8 | uint16(f.Payload[1]), Quantity: uint16(f.Payload[2])<<8 | uint16(f.Payload[3])}
-	for i := range f.Payload {
-		f.Payload[i] = 0
-	}
 	return r, r.Validate()
 }

@@ -27,7 +27,8 @@ func Float32(data []byte, order ByteOrder) float32 {
 	if len(data) < 4 {
 		return 0
 	}
-	b := data[:4]
+	b := make([]byte, 4)
+	copy(b, data[:4])
 	if order == LittleEndian {
 		for i, j := 0, 3; i < j; i, j = i+1, j-1 {
 			b[i], b[j] = b[j], b[i]

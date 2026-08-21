@@ -33,7 +33,9 @@ func Chunk(data []byte, size int) [][]byte {
 		if n > len(data) {
 			n = len(data)
 		}
-		out = append(out, data[:n])
+		chunk := make([]byte, n)
+		copy(chunk, data[:n])
+		out = append(out, chunk)
 		data = data[n:]
 	}
 	return out
