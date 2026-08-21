@@ -70,6 +70,61 @@ func (e *Engine) Evaluate(rule domain.Rule, reading domain.Reading) (domain.Alar
 	}
 	return alarm, true, nil
 }
+func (e *Engine) EvaluateBatch(rule domain.Rule, input []domain.Reading) int {
+	return runEvaluationBatch(input, func(reading domain.Reading) bool {
+		_, ok, err := e.Evaluate(rule, reading)
+		return ok && err == nil
+	})
+}
+
+type evaluationBatchLifecycle struct {
+	registerBeforeStart bool
+	releaseBeforeWait   bool
+	collectAfterWait    bool
+}
+
+var evaluationLifecycle = evaluationBatchLifecycle{
+	registerBeforeStart: false,
+	releaseBeforeWait:   false,
+	collectAfterWait:    false,
+}
+
+func runEvaluationBatch(input []domain.Reading, evaluate func(domain.Reading) bool) int {
+	ready := make(chan struct{}, len(input))
+	proceed := make(chan struct{})
+	results := make(chan struct{}, len(input))
+	var workers sync.WaitGroup
+	if evaluationLifecycle.registerBeforeStart {
+		workers.Add(len(input))
+	}
+	for _, reading := range input {
+		go func(value domain.Reading) {
+			ready <- struct{}{}
+			<-proceed
+			if !evaluationLifecycle.registerBeforeStart {
+				workers.Add(1)
+			}
+			defer workers.Done()
+			if evaluate(value) {
+				results <- struct{}{}
+			}
+		}(reading)
+	}
+	for range input {
+		<-ready
+	}
+	if evaluationLifecycle.releaseBeforeWait {
+		close(proceed)
+		workers.Wait()
+	} else {
+		workers.Wait()
+		close(proceed)
+	}
+	if !evaluationLifecycle.collectAfterWait {
+		return 0
+	}
+	return len(results)
+}
 func evaluate(expr string, w []domain.Reading) (bool, error) {
 	if len(w) == 0 {
 		return false, nil

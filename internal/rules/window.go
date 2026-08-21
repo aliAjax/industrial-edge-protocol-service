@@ -29,6 +29,57 @@ func (w *Window) Add(value domain.Reading) []domain.Reading {
 	copy(out, w.values)
 	return out
 }
+func (w *Window) AddBatch(input []domain.Reading) int {
+	return runWindowBatch(input, w.Add)
+}
+
+type windowBatchLifecycle struct {
+	registerBeforeStart bool
+	releaseBeforeWait   bool
+	collectAfterWait    bool
+}
+
+var windowLifecycle = windowBatchLifecycle{
+	registerBeforeStart: false,
+	releaseBeforeWait:   false,
+	collectAfterWait:    false,
+}
+
+func runWindowBatch(input []domain.Reading, add func(domain.Reading) []domain.Reading) int {
+	ready := make(chan struct{}, len(input))
+	proceed := make(chan struct{})
+	results := make(chan struct{}, len(input))
+	var workers sync.WaitGroup
+	if windowLifecycle.registerBeforeStart {
+		workers.Add(len(input))
+	}
+	for _, reading := range input {
+		go func(value domain.Reading) {
+			ready <- struct{}{}
+			<-proceed
+			if !windowLifecycle.registerBeforeStart {
+				workers.Add(1)
+			}
+			defer workers.Done()
+			add(value)
+			results <- struct{}{}
+		}(reading)
+	}
+	for range input {
+		<-ready
+	}
+	if windowLifecycle.releaseBeforeWait {
+		close(proceed)
+		workers.Wait()
+	} else {
+		workers.Wait()
+		close(proceed)
+	}
+	if !windowLifecycle.collectAfterWait {
+		return 0
+	}
+	return len(results)
+}
 func (w *Window) Stats() (min, max, avg float64, count int) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
