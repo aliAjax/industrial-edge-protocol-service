@@ -206,10 +206,9 @@ func (s *Store) AppendReadings(_ context.Context, values []domain.Reading) {
 }
 func (s *Store) Readings(_ context.Context, id domain.ID, from, to time.Time) []domain.Reading {
 	s.mu.RLock()
-	rows := s.readings
-	s.mu.RUnlock()
-	out := rows[:0]
-	for _, v := range rows {
+	defer s.mu.RUnlock()
+	out := make([]domain.Reading, 0, len(s.readings))
+	for _, v := range s.readings {
 		if v.PointID == id && !v.ObservedAt.Before(from) && v.ObservedAt.Before(to) {
 			out = append(out, v)
 		}

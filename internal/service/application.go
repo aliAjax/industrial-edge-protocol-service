@@ -119,21 +119,23 @@ func (a *Application) Ingest(ctx context.Context, values []domain.Reading) error
 	if len(values) == 0 {
 		return nil
 	}
+	buffered := make([]domain.Reading, len(values))
+	copy(buffered, values)
 	a.mu.Lock()
-	for i := range values {
+	for i := range buffered {
 		a.sequence++
-		values[i].Sequence = a.sequence
-		if values[i].ReceivedAt.IsZero() {
-			values[i].ReceivedAt = time.Now().UTC()
+		buffered[i].Sequence = a.sequence
+		if buffered[i].ReceivedAt.IsZero() {
+			buffered[i].ReceivedAt = time.Now().UTC()
 		}
 	}
 	a.mu.Unlock()
-	if _, err := a.WAL.Append(values); err != nil {
+	if _, err := a.WAL.Append(buffered); err != nil {
 		return err
 	}
-	a.Telemetry.Append(values)
-	a.Repo.AppendReadings(ctx, values)
-	for _, r := range values {
+	a.Telemetry.Append(buffered)
+	a.Repo.AppendReadings(ctx, buffered)
+	for _, r := range buffered {
 		for _, rule := range a.Repo.ListRules(ctx) {
 			alarm, ok, err := a.Rules.Evaluate(rule, r)
 			if err != nil {
