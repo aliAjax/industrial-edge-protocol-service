@@ -51,10 +51,7 @@ func (q *Queue) Confirm(id domain.ID, ok bool) error {
 	}
 	delete(q.inflight, id)
 	if ok {
-		stale := c
-		stale.Status = domain.CommandSent
-		c = stale
-		q.inflight[id] = stale
+		c.Status = domain.CommandConfirmed
 	} else {
 		c.Status = domain.CommandRejected
 	}

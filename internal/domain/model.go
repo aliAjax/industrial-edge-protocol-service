@@ -137,7 +137,7 @@ const (
 
 func (s CommandStatus) Terminal() bool {
 	switch s {
-	case CommandRejected, CommandExpired:
+	case CommandConfirmed, CommandRejected, CommandExpired:
 		return true
 	default:
 		return false
