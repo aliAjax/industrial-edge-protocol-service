@@ -16,7 +16,7 @@ type Strategy struct {
 
 func (s Strategy) Validate() bool { return s.Name != "" && s.Percentage >= 0 && s.Percentage <= 100 }
 func (s Strategy) Select(all []domain.Gateway) []domain.Gateway {
-	selected := []domain.Gateway{}
+	var selected []domain.Gateway
 	if len(s.GatewayIDs) > 0 {
 		wanted := map[domain.ID]bool{}
 		for _, id := range s.GatewayIDs {

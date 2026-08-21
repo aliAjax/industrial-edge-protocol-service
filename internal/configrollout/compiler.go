@@ -26,7 +26,7 @@ func Compile(version int64, gateway domain.Gateway, points []domain.Point, caps 
 	if len(points) > caps.MaxPoints && caps.MaxPoints > 0 {
 		return Compiled{}, fmt.Errorf("point capacity exceeded")
 	}
-	supported := map[string]bool{}
+	var supported map[string]bool
 	for _, p := range caps.Protocols {
 		supported[p] = true
 	}
