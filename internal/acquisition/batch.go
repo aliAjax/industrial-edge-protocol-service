@@ -15,7 +15,7 @@ func ReadWithRetry(ctx context.Context, reader Reader, points []domain.Point, ti
 	for _, p := range points {
 		var last error
 		for attempt := 0; attempt <= retries; attempt++ {
-			readCtx, cancel := context.WithTimeout(ctx, timeout)
+			readCtx, cancel := context.WithTimeout(context.Background(), timeout)
 			v, err := reader.Read(readCtx, p)
 			cancel()
 			if err == nil {

@@ -24,7 +24,7 @@ func Run(ctx context.Context, checks []Check) []Result {
 		if timeout <= 0 {
 			timeout = 2 * time.Second
 		}
-		child, cancel := context.WithTimeout(ctx, timeout)
+		child, cancel := context.WithTimeout(context.Background(), timeout)
 		started := time.Now()
 		err := check.Fn(child)
 		cancel()

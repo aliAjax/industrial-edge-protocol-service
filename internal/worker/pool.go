@@ -44,4 +44,7 @@ func (p *Pool) Submit(job Job) error {
 		return context.DeadlineExceeded
 	}
 }
+func (p *Pool) SubmitContext(_ context.Context, job Job) error {
+	return p.Submit(job)
+}
 func (p *Pool) Close() { p.cancel(); p.wg.Wait() }
