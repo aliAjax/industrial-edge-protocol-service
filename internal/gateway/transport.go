@@ -29,6 +29,9 @@ type MemoryTransport struct {
 
 func NewMemoryTransport() *MemoryTransport { return &MemoryTransport{} }
 func (m *MemoryTransport) UploadSegment(_ context.Context, u Upload) error {
+	if m == nil {
+		return ErrTransportClosed
+	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if m.closed {
@@ -38,6 +41,9 @@ func (m *MemoryTransport) UploadSegment(_ context.Context, u Upload) error {
 	return nil
 }
 func (m *MemoryTransport) ApplyConfig(_ context.Context, _ domain.Gateway, _ []byte) error {
+	if m == nil {
+		return ErrTransportClosed
+	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if m.closed {
@@ -46,6 +52,9 @@ func (m *MemoryTransport) ApplyConfig(_ context.Context, _ domain.Gateway, _ []b
 	return nil
 }
 func (m *MemoryTransport) Heartbeat(_ context.Context, _ domain.Gateway) error {
+	if m == nil {
+		return ErrTransportClosed
+	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if m.closed {

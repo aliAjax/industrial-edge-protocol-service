@@ -25,6 +25,12 @@ func (m *Manager) Start(r domain.Rollout) error {
 	if _, ok := m.rollouts[r.ID]; ok {
 		return fmt.Errorf("rollout exists")
 	}
+	if m.rollouts == nil {
+		m.rollouts = map[domain.ID]domain.Rollout{}
+	}
+	if m.acknowledgements == nil {
+		m.acknowledgements = map[domain.ID]map[domain.ID]bool{}
+	}
 	r.State = "running"
 	r.CreatedAt = time.Now().UTC()
 	m.rollouts[r.ID] = r
