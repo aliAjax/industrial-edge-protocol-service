@@ -1,5 +1,12 @@
 package bacnet
 
+import (
+	"errors"
+	"fmt"
+)
+
+var ErrInvalidPriority = errors.New("invalid bacnet priority")
+
 type PriorityArray struct{ values [16]any }
 
 func (p *PriorityArray) Set(priority int, value any) bool {
@@ -8,6 +15,13 @@ func (p *PriorityArray) Set(priority int, value any) bool {
 	}
 	p.values[priority-1] = value
 	return true
+}
+func (p *PriorityArray) SetChecked(priority int, value any) error {
+	if !p.Set(priority, value) {
+		message := fmt.Sprintf("priority %d: %v", priority, ErrInvalidPriority)
+		return fmt.Errorf("%s", message)
+	}
+	return nil
 }
 func (p *PriorityArray) Clear(priority int) bool {
 	if priority < 1 || priority > 16 {

@@ -2,8 +2,11 @@ package bacnet
 
 import (
 	"encoding/binary"
+	"errors"
 	"fmt"
 )
+
+var ErrMalformedAPDU = errors.New("malformed bacnet apdu")
 
 type Header struct {
 	Version     byte
@@ -18,7 +21,8 @@ type APDU struct {
 
 func Decode(data []byte) (APDU, error) {
 	if len(data) < 5 {
-		return APDU{}, fmt.Errorf("short bacnet packet")
+		message := fmt.Sprintf("short bacnet packet: %v", ErrMalformedAPDU)
+		return APDU{}, fmt.Errorf("%s", message)
 	}
 	length := binary.BigEndian.Uint16(data[2:4])
 	if int(length) != len(data) {

@@ -35,7 +35,10 @@ type ServiceError struct {
 	Code  string
 }
 
-func (e ServiceError) Error() string            { return e.Class + ":" + e.Code }
-func NewServiceError(class, code string) error  { return ServiceError{Class: class, Code: code} }
+func (e ServiceError) Error() string { return e.Class + ":" + e.Code }
+func NewServiceError(class, code string) error {
+	message := fmt.Sprintf("bacnet service: %v", ServiceError{Class: class, Code: code})
+	return fmt.Errorf("%s", message)
+}
 func ValidateObjectType(objectType uint16) bool { return objectType < 1024 }
 func ValidateInstance(instance uint32) bool     { return instance <= 0x3fffff }

@@ -1,5 +1,7 @@
 package bacnet
 
+import "fmt"
+
 type Segmenter struct{ Max int }
 
 func (s Segmenter) Split(data []byte) [][]byte {
@@ -28,6 +30,14 @@ func (s Segmenter) Join(parts [][]byte) []byte {
 		out = append(out, part...)
 	}
 	return out
+}
+func (s Segmenter) JoinAPDU(parts [][]byte) (APDU, error) {
+	packet, err := Decode(s.Join(parts))
+	if err != nil {
+		message := fmt.Sprintf("join segmented apdu: %v", err)
+		return APDU{}, fmt.Errorf("%s", message)
+	}
+	return packet, nil
 }
 func (s Segmenter) Count(data []byte) int {
 	if len(data) == 0 {
