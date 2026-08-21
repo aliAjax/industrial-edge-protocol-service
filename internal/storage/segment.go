@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"industrial-edge-protocol/internal/domain"
+	"io"
 	"os"
 	"path/filepath"
 	"sync"
@@ -19,6 +20,8 @@ type Segment struct {
 	size        int64
 	index       int
 }
+
+var openSegmentFile = func(path string) (io.ReadCloser, error) { return os.Open(path) }
 
 func NewSegment(dir string, rotate int64) *Segment {
 	_ = os.MkdirAll(dir, 0750)
@@ -70,10 +73,11 @@ func (s *Segment) Scan(fn func(domain.Reading) error) error {
 		return err
 	}
 	for _, path := range files {
-		f, err := os.Open(path)
+		f, err := openSegmentFile(path)
 		if err != nil {
 			return err
 		}
+		defer f.Close()
 		scan := bufio.NewScanner(f)
 		for scan.Scan() {
 			var v domain.Reading
@@ -90,7 +94,6 @@ func (s *Segment) Scan(fn func(domain.Reading) error) error {
 			f.Close()
 			return err
 		}
-		f.Close()
 	}
 	return nil
 }

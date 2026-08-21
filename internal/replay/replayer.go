@@ -9,7 +9,12 @@ import (
 
 type Handler func(context.Context, domain.Reading) error
 
-func Run(ctx context.Context, values []domain.Reading, handler Handler, pace time.Duration) error {
+func Run(ctx context.Context, values []domain.Reading, handler Handler, pace time.Duration) (err error) {
+	defer func() {
+		if ctxErr := ctx.Err(); ctxErr != nil {
+			err = ctxErr
+		}
+	}()
 	sorted := append([]domain.Reading(nil), values...)
 	sort.SliceStable(sorted, func(i, j int) bool { return sorted[i].ObservedAt.Before(sorted[j].ObservedAt) })
 	var previous time.Time

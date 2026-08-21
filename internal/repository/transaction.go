@@ -13,7 +13,7 @@ func NewTransaction() *Transaction { return &Transaction{} }
 func (t *Transaction) Add(action func()) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	if t.committed || t.rolledBack {
+	if t.committed {
 		return
 	}
 	t.actions = append(t.actions, action)
@@ -21,7 +21,7 @@ func (t *Transaction) Add(action func()) {
 func (t *Transaction) Commit() {
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	if t.committed || t.rolledBack {
+	if t.committed {
 		return
 	}
 	for _, a := range t.actions {
@@ -29,7 +29,7 @@ func (t *Transaction) Commit() {
 	}
 	t.committed = true
 }
-func (t *Transaction) Rollback() { t.mu.Lock(); t.rolledBack = true; t.actions = nil; t.mu.Unlock() }
+func (t *Transaction) Rollback() { t.mu.Lock(); t.rolledBack = true; t.mu.Unlock() }
 func (t *Transaction) Done() bool {
 	t.mu.Lock()
 	defer t.mu.Unlock()

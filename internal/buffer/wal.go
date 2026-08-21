@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"industrial-edge-protocol/internal/domain"
+	"io"
 	"os"
 	"path/filepath"
 	"sync"
@@ -24,6 +25,8 @@ type WAL struct {
 	maxBytes int64
 	sequence uint64
 }
+
+var openWALFile = func(path string) (io.ReadCloser, error) { return os.Open(path) }
 
 func New(dir string, maxBytes int64) *WAL {
 	_ = os.MkdirAll(dir, 0750)
@@ -64,10 +67,11 @@ func (w *WAL) Replay(fn func(Record) error) error {
 		return err
 	}
 	for _, name := range files {
-		f, err := os.Open(name)
+		f, err := openWALFile(name)
 		if err != nil {
 			return err
 		}
+		defer f.Close()
 		scanner := bufio.NewScanner(f)
 		for scanner.Scan() {
 			var rec Record
@@ -84,7 +88,6 @@ func (w *WAL) Replay(fn func(Record) error) error {
 			f.Close()
 			return err
 		}
-		f.Close()
 	}
 	return nil
 }
