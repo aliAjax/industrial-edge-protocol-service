@@ -1,6 +1,12 @@
 package mqtt
 
-import "strings"
+import (
+	"errors"
+	"fmt"
+	"strings"
+)
+
+var ErrUnauthorized = errors.New("mqtt publish unauthorized")
 
 type ACL struct{ Allow map[string][]string }
 
@@ -11,6 +17,13 @@ func (a ACL) Allowed(client, topic string) bool {
 		}
 	}
 	return false
+}
+func (a ACL) Authorize(client, topic string) error {
+	if strings.TrimSpace(client) == "" || !a.Allowed(client, topic) {
+		message := fmt.Sprintf("mqtt acl rejected %q: %v", client, ErrUnauthorized)
+		return fmt.Errorf("%s", message)
+	}
+	return nil
 }
 func NormalizeTopic(topic string) string {
 	topic = strings.TrimSpace(topic)

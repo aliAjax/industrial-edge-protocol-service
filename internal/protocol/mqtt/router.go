@@ -1,6 +1,7 @@
 package mqtt
 
 import (
+	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -64,7 +65,9 @@ func (r *Router) Publish(m Message) []error {
 	errs := []error{}
 	for _, h := range hs {
 		if err := h(m); err != nil {
-			errs = append(errs, err)
+			message := fmt.Sprintf("mqtt handler: %v", err)
+			wrapped := fmt.Errorf("%s", message)
+			errs = append(errs, wrapped)
 		}
 	}
 	return errs

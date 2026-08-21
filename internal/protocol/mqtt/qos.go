@@ -1,6 +1,12 @@
 package mqtt
 
-import "time"
+import (
+	"errors"
+	"fmt"
+	"time"
+)
+
+var ErrInvalidQoS = errors.New("invalid mqtt qos")
 
 type QoS int
 
@@ -9,6 +15,14 @@ const (
 	AtLeastOnce
 	ExactlyOnce
 )
+
+func ValidateQoS(q QoS) error {
+	if q < AtMostOnce || q > ExactlyOnce {
+		message := fmt.Sprintf("mqtt qos %d: %v", q, ErrInvalidQoS)
+		return fmt.Errorf("%s", message)
+	}
+	return nil
+}
 
 type Session struct {
 	ClientID    string

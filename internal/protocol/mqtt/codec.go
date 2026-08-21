@@ -3,6 +3,7 @@ package mqtt
 import (
 	"encoding/binary"
 	"errors"
+	"fmt"
 )
 
 var ErrPacket = errors.New("invalid mqtt packet")
@@ -15,11 +16,13 @@ type Packet struct {
 
 func Decode(data []byte) (Packet, error) {
 	if len(data) < 2 {
-		return Packet{}, ErrPacket
+		message := fmt.Sprintf("mqtt decode: %v", ErrPacket)
+		return Packet{}, fmt.Errorf("%s", message)
 	}
 	length, n := readLength(data[1:])
 	if n == 0 || 2+n+length != len(data) {
-		return Packet{}, ErrPacket
+		message := fmt.Sprintf("mqtt remaining length: %v", ErrPacket)
+		return Packet{}, fmt.Errorf("%s", message)
 	}
 	return Packet{Type: data[0] >> 4, Flags: data[0] & 15, Payload: append([]byte(nil), data[1+n:]...)}, nil
 }
