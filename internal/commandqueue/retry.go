@@ -21,4 +21,4 @@ func (r *Retry) Failure(now time.Time) bool {
 	return true
 }
 func (r Retry) Ready(now time.Time) bool { return !r.Next.After(now) }
-func (r *Retry) Reset()                  { r.Attempts = 0; r.Next = time.Time{} }
+func (r *Retry) Reset()                  { r.Attempts = 0 }

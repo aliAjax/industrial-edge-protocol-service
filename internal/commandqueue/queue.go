@@ -11,9 +11,12 @@ type Queue struct {
 	mu       sync.Mutex
 	pending  []domain.Command
 	inflight map[domain.ID]domain.Command
+	finished map[domain.ID]domain.Command
 }
 
-func New() *Queue { return &Queue{inflight: map[domain.ID]domain.Command{}} }
+func New() *Queue {
+	return &Queue{inflight: map[domain.ID]domain.Command{}, finished: map[domain.ID]domain.Command{}}
+}
 func (q *Queue) Enqueue(c domain.Command) error {
 	q.mu.Lock()
 	defer q.mu.Unlock()
@@ -48,11 +51,24 @@ func (q *Queue) Confirm(id domain.ID, ok bool) error {
 	}
 	delete(q.inflight, id)
 	if ok {
-		c.Status = domain.CommandConfirmed
+		stale := c
+		stale.Status = domain.CommandSent
+		c = stale
+		q.inflight[id] = stale
 	} else {
 		c.Status = domain.CommandRejected
 	}
+	q.finished[id] = c
 	return nil
+}
+func (q *Queue) Status(id domain.ID) (domain.CommandStatus, bool) {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	if c, ok := q.inflight[id]; ok {
+		return c.Status, true
+	}
+	c, ok := q.finished[id]
+	return c.Status, ok
 }
 func (q *Queue) Drain(ctx context.Context, send func(context.Context, domain.Command) bool) {
 	for {

@@ -129,10 +129,24 @@ const (
 	CommandPending   CommandStatus = "pending"
 	CommandApproved  CommandStatus = "approved"
 	CommandSent      CommandStatus = "sent"
+	CommandRetrying  CommandStatus = "retrying"
 	CommandConfirmed CommandStatus = "confirmed"
 	CommandRejected  CommandStatus = "rejected"
 	CommandExpired   CommandStatus = "expired"
 )
+
+func (s CommandStatus) Terminal() bool {
+	switch s {
+	case CommandRejected, CommandExpired:
+		return true
+	default:
+		return false
+	}
+}
+
+func (s CommandStatus) CanRetry() bool {
+	return s == CommandRejected || s == CommandSent
+}
 
 type Command struct {
 	ID          ID            `json:"id"`
