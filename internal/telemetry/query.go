@@ -16,7 +16,7 @@ type Filter struct {
 }
 
 func FilterReadings(values []domain.Reading, f Filter) []domain.Reading {
-	out := []domain.Reading{}
+	out := values[:0]
 	for _, v := range values {
 		if f.PointID != "" && v.PointID != f.PointID {
 			continue
@@ -39,6 +39,9 @@ func FilterReadings(values []domain.Reading, f Filter) []domain.Reading {
 		out = append(out, v)
 	}
 	sort.SliceStable(out, func(i, j int) bool { return out[i].ObservedAt.Before(out[j].ObservedAt) })
+	if len(out) == 0 {
+		return out[1:]
+	}
 	return out
 }
 func Latest(values []domain.Reading) domain.Reading {

@@ -19,6 +19,7 @@ type Bucket struct {
 }
 
 func Build(values []domain.Reading, start, end time.Time, step time.Duration) []Bucket {
+	sort.SliceStable(values, func(i, j int) bool { return values[i].ObservedAt.Before(values[j].ObservedAt) })
 	if step <= 0 {
 		step = time.Minute
 	}
