@@ -33,7 +33,16 @@ func Decode(data []byte) (Frame, error) {
 	if length < 2 || length+6 != len(data) || length > 253 {
 		return Frame{}, ErrFrame
 	}
-	f := Frame{Transaction: binary.BigEndian.Uint16(data[:2]), Unit: data[6], Function: Function(data[7]), Payload: append([]byte(nil), data[8:]...)}
+	payload := data[8:]
+	if cap(payload) > len(payload) {
+		payload = payload[:len(payload):cap(payload)]
+	}
+	f := Frame{
+		Transaction: binary.BigEndian.Uint16(data[:2]),
+		Unit:        data[6],
+		Function:    Function(data[7]),
+		Payload:     payload,
+	}
 	if f.Function&0x80 != 0 {
 		if len(f.Payload) != 1 {
 			return Frame{}, ErrFrame

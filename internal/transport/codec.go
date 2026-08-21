@@ -33,7 +33,7 @@ func Chunk(data []byte, size int) [][]byte {
 		if n > len(data) {
 			n = len(data)
 		}
-		out = append(out, append([]byte(nil), data[:n]...))
+		out = append(out, data[:n])
 		data = data[n:]
 	}
 	return out
